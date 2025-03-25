@@ -106,10 +106,8 @@ def concurrent_increment_with_cas(client):
 #Bounded Queue
 def bounded_queue_demo(client):
     print("\n--- Демонстрація роботи Bounded Queue ---")
-    # Отримуємо розподілену чергу (припускаємо, що на сервері налаштовано max-size=10)
     queue = client.get_queue("bounded-queue").blocking()
     
-    # Подія, яка сигналізує про завершення роботи продюсера
     producer_done = threading.Event()
 
     def producer():
@@ -118,16 +116,13 @@ def bounded_queue_demo(client):
             queue.put(i)
             print(f"Producer: додано {i}")
             time.sleep(0.1)
-        # Сигналізуємо, що продюсер завершив роботу
         producer_done.set()
         print("Producer: завершив роботу.")
 
     def consumer(consumer_id):
         count = 0
         while True:
-            # Метод poll з таймаутом (1 секунда)
             item = queue.poll(timeout=1.0)
-            # Якщо нічого не отримано, перевіряємо чи продюсер завершив роботу
             if item is None:
                 if producer_done.is_set():
                     print(f"Consumer {consumer_id}: черга порожня та продюсер завершив роботу.")
