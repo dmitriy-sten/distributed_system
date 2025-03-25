@@ -39,7 +39,7 @@ def concurrent_increment_no_lock(client):
 
     final_value = dmap.get("key")
     print(f"Фінальне значення (без блокувань): {final_value}")
-    print("Очікуване значення має бути менше 30000 через race condition.")
+    print("Очікуване значення: 30000")
 
 
 # Increment з песимістичним блокуванням
@@ -106,22 +106,19 @@ def concurrent_increment_with_cas(client):
 #Bounded Queue
 def bounded_queue_demo(client):
     print("\n--- Демонстрація роботи Bounded Queue ---")
-    # Використовуємо чергу "bounded-queue". Передбачається, що на сервері вона налаштована з max-size=10.
     queue = client.get_queue("bounded-queue").blocking()
     
-    # Функція продюсера: записує значення від 1 до 100
     def producer():
         for i in range(1, 101):
             print(f"Producer: намагаюсь додати {i}...")
-            queue.put(i)  # ця операція блокується, якщо черга заповнена
+            queue.put(i) 
             print(f"Producer: додано {i}")
-            time.sleep(0.1)  # невелика затримка для наочності
-        # Після завершення виробництва, відправляємо сигнали завершення (по 1 для кожного споживача)
+            time.sleep(0.1) 
         for _ in range(2):
             queue.put(None)
     print('\n')
 
-    # Функція конс’юмера: читає елементи з черги до отримання сигналу завершення (None)
+  
     def consumer(consumer_id):
         count = 0
         while True:
@@ -131,7 +128,6 @@ def bounded_queue_demo(client):
                 break
             print(f"Consumer {consumer_id}: отримано {item}")
             count += 1
-            # Можна додати невелику затримку для моделювання часу обробки
             time.sleep(0.15)
         print(f"Consumer {consumer_id}: оброблено {count} елементів.")
 
@@ -159,23 +155,23 @@ def main():
     print("connected")
 
     # 1. Distributed Map Demo
-    distributed_map_demo(client)
+    # distributed_map_demo(client)
     # input("\nnext-> тест  конкурентного доступу (без блокувань)...")
 
-    # # 2. Concurrent Increment без блокувань
-    # concurrent_increment_no_lock(client)
-    # input("\nnext-> тест  з песимістичним блокуванням...")
+    # 2. Concurrent Increment без блокувань
+    concurrent_increment_no_lock(client)
+    input("\nnext-> тест  з песимістичним блокуванням...")
 
-    # # 3. Concurrent Increment з песимістичним блокуванням
-    # concurrent_increment_with_lock(client)
-    # input("\n next-> тест з оптимістичним блокуванням (CAS)...")
+    # 3. Concurrent Increment з песимістичним блокуванням
+    concurrent_increment_with_lock(client)
+    input("\n next-> тест з оптимістичним блокуванням (CAS)...")
 
-    # # 4. Concurrent Increment з оптимістичним блокуванням (CAS)
-    # concurrent_increment_with_cas(client)
-    # input("\nnext-> тесту до демонстрації роботи Bounded Queue...")
+    # 4. Concurrent Increment з оптимістичним блокуванням (CAS)
+    concurrent_increment_with_cas(client)
+    input("\nnext-> тесту до демонстрації роботи Bounded Queue...")
 
-    # # 5. Демонстрація роботи Bounded Queue
-    # bounded_queue_demo(client)
+    # 5. Демонстрація роботи Bounded Queue
+    bounded_queue_demo(client)
 
     client.shutdown()
     print("\n---Done---.")
