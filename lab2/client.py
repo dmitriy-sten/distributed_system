@@ -84,7 +84,7 @@ def concurrent_increment_with_cas(client):
             while True:
                 current = dmap.get("key")
                 # replace повертає True, якщо оновлення пройшло успішно
-                if dmap.replace("key", current, current + 1):
+                if dmap.replace_if_same("key", current, current + 1):
                     break
 
     threads = []
@@ -159,16 +159,16 @@ def main():
     # input("\nnext-> тест  конкурентного доступу (без блокувань)...")
 
     # 2. Concurrent Increment без блокувань
-    concurrent_increment_no_lock(client)
-    input("\nnext-> тест  з песимістичним блокуванням...")
+    # concurrent_increment_no_lock(client)
+    # input("\nnext-> тест  з песимістичним блокуванням...")
 
-    # 3. Concurrent Increment з песимістичним блокуванням
-    concurrent_increment_with_lock(client)
-    input("\n next-> тест з оптимістичним блокуванням (CAS)...")
+    # # 3. Concurrent Increment з песимістичним блокуванням
+    # concurrent_increment_with_lock(client)
+    # input("\n next-> тест з оптимістичним блокуванням (CAS)...")
 
     # 4. Concurrent Increment з оптимістичним блокуванням (CAS)
-    concurrent_increment_with_cas(client)
-    input("\nnext-> тесту до демонстрації роботи Bounded Queue...")
+    # concurrent_increment_with_cas(client)
+    # input("\nnext-> тесту до демонстрації роботи Bounded Queue...")
 
     # 5. Демонстрація роботи Bounded Queue
     bounded_queue_demo(client)
