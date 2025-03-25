@@ -107,31 +107,32 @@ def concurrent_increment_with_cas(client):
 def bounded_queue_demo(client):
     print("\n--- Демонстрація роботи Bounded Queue ---")
     queue = client.get_queue("bounded-queue").blocking()
-    
+
+    # Функція продюсера: записує значення від 1 до 100
     def producer():
         for i in range(1, 101):
-            print(f"Producer: намагаюсь додати {i}...")
-            queue.put(i) 
+            print(f"Producer: намагаюся додати {i}...")
+            queue.put(i)
             print(f"Producer: додано {i}")
-            time.sleep(0.1) 
+            time.sleep(0.1)
         for _ in range(2):
-            queue.put(None)
-    print('\n')
+            queue.put("STOP")
+        print("Producer: завершив роботу.")
 
-  
     def consumer(consumer_id):
         count = 0
         while True:
-            item = queue.take()  # чекає на доступний елемент
-            if item is None:
-                print(f"Consumer {consumer_id}: отримано сигнал завершення.")
+            item = queue.take()
+            if item == "STOP":
+                print(f"Consumer {consumer_id}: отримав сигнал завершення.")
                 break
-            print(f"Consumer {consumer_id}: отримано {item}")
+            print(f"Consumer {consumer_id}: отримав {item}")
             count += 1
             time.sleep(0.15)
         print(f"Consumer {consumer_id}: оброблено {count} елементів.")
 
-  
+
+    # Запускаємо потоки
     prod_thread = threading.Thread(target=producer, name="Producer")
     cons_thread1 = threading.Thread(target=consumer, args=(1,), name="Consumer-1")
     cons_thread2 = threading.Thread(target=consumer, args=(2,), name="Consumer-2")
@@ -143,7 +144,7 @@ def bounded_queue_demo(client):
     prod_thread.join()
     cons_thread1.join()
     cons_thread2.join()
-    print("\n")
+    print("Bounded Queue Demo завершено.")
 
 
 
