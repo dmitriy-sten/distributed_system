@@ -1,0 +1,37 @@
+version: "3.8"
+
+services:
+  master:
+    build:
+      context: ./master
+      dockerfile: Dockerfile
+    container_name: master2
+    environment:
+      - SECONDARIES=http://secondary1:8001,http://secondary2:8001
+    ports:
+      - "8000:8000"
+    depends_on:
+      - secondary1
+      - secondary2
+
+  secondary1:
+    build:
+      context: ./secondary
+      dockerfile: Dockerfile
+    container_name: secondary1_2
+    environment:
+      - SECONDARY_ID=sec1
+      - REPLICATION_DELAY=3
+    ports:
+      - "8001:8001"
+
+  secondary2:
+    build:
+      context: ./secondary
+      dockerfile: Dockerfile
+    container_name: secondary2_2
+    environment:
+      - SECONDARY_ID=sec2
+      - REPLICATION_DELAY=3
+    ports:
+      - "8002:8001"
